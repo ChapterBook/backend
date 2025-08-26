@@ -1,0 +1,27 @@
+name: ci
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # KHÔNG dùng 'cache: npm' khi chưa có lockfile
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Cài dependency nếu có package.json
+      - name: Install deps (if package.json exists)
+        if: hashFiles('package.json') != ''
+        run: npm ci || npm i
+
+      - name: Build (optional)
+        if: hashFiles('package.json') != ''
+        run: npm run build || echo "no build step yet"
